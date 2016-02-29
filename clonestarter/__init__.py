@@ -3,6 +3,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.script import Manager
 import datetime
+import cloudinary.uploader
 
 app = Flask(__name__)
 app.config.from_object('clonestarter.default_settings')
@@ -25,12 +26,23 @@ def create():
 	if request.method == "GET":
 		return render_template('create.html')
 
-	if request.method == "POST":
+	elif request.method == "POST":
 		#Handle the form submission
 
 		now = datetime.datetime.now()
 		time_end = request.form.get("funding_end_date")
 		time_end = datetime.datetime.strptime(time_end, "%Y-%m-%d")
+
+		#Upload cover photo
+
+		cover_photo = request.files['cover_photo']
+		uploaded_image = cloudinary.uploader.upload(
+			cover_photo,
+			crop = 'limit',
+			width = 600,
+			height = 550
+		)
+		image_filename = uploaded_image["public_id"]
 
 		new_project = Project(
 			member_id = 1, #Guest Creator
@@ -38,6 +50,7 @@ def create():
 			short_description = request.form.get("short_description"),
 			long_description = request.form.get("long_description"),
 			goal_amount = request.form.get("funding_goal"),
+			image_filename = image_filename,
 			time_start = now,
 			time_end = time_end,
 			time_created = now
@@ -46,7 +59,8 @@ def create():
 		db.session.add(new_project)
 		db.session.commit()
 
-		return redirect(url_for('project_detail', project_id = new_project.id))	
+		return redirect(url_for('project_detail', project_id=new_project.id))			
+
 
 @app.route('/projects/<int:project_id>/')
 def project_detail(project_id):
