@@ -5,21 +5,23 @@ from flask.ext.script import Manager
 import datetime
 import cloudinary.uploader
 
+# Initialze main app
 app = Flask(__name__)
 app.config.from_object('clonestarter.default_settings')
-manager = Manager(app)
 
+# Enable database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
 from clonestarter.models import *
 
-
-@app.route("/")
+@app.route('/')
 def hello():
-	return render_template("index.html")
+	projects = db.session.query(Project).order_by(Project.time_created.desc()).limit(10)
 
+	return render_template('index.html', projects=projects)
 
 @app.route('/projects/create/', methods=['GET', 'POST'])
 def create():
@@ -68,20 +70,19 @@ def project_detail(project_id):
 	if project is None:
 		abort(404)
 
-	return render_template("project_detail.html", project = project)
+	return render_template('project_detail.html', project=project)
 
 @app.route('/projects/<int:project_id>/pledge/', methods=['GET', 'POST'])
 def pledge(project_id):
-	
 	project = db.session.query(Project).get(project_id)
 	if project is None:
 		abort(404)
 
 	if request.method == "GET":
-		return render_template('pledge.html', project = project)
+		return render_template('pledge.html', project=project)
 
-	if request.method == "POST":
-		#Handle the form submission
+	elif request.method == "POST":
+		# Handle the form submission
 		
 		# Hardcode guest pledgor member for now
 		guest_creator = db.session.query(Member).filter_by(id=2).one()
@@ -95,20 +96,22 @@ def pledge(project_id):
 		db.session.add(new_pledge)
 		db.session.commit()
 
-		return redirect(url_for('project_detail', project_id=project.id))	
+		return redirect(url_for('project_detail', project_id=project.id))			
 
+@app.route('/search/')
+def search():
+	query = request.args.get("q") or ""
+	projects = db.session.query(Project).filter(
+		Project.name.ilike('%'+query+'%') |
+		Project.short_description.ilike('%'+query+'%') |
+		Project.long_description.ilike('%'+query+'%')
+	).all()
+	project_count = len(projects)
 
+	query_text = query if query != "" else "all projects"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return render_template('search.html', 
+		query_text=query_text,
+		projects=projects,
+		project_count=project_count
+	)
