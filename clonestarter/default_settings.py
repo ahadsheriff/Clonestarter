@@ -1,13 +1,16 @@
-import os
+import os 
 import cloudinary
 
-DEBUG=True
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SQLALCHEMY_DATABASE_URI = "sqlite:///" + BASE_DIR + "/app.db"
+DEBUG = os.environ.get('DEBUG', True)
+SQLALCHEMY_DATABASE_URL=os.environ.get('SQLALCHEMY_DATABASE_URI',"sqlite:///"+ BASE_DIR + "/app.db")
+SQLALCHEMY_TRACK_MODIFICATIONS=os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS',True)
+CLOUDINARY_CLOUD_NAME=os.environ.get('CLOUDINARY_CLOUD_NAME',"dk3btogkl")
+CLOUDINARY_API_KEY=os.environ.get('CLOUDINARY_API_KEY',"756496171926584")
+CLOUDINARY_API_SECRET=os.environ.get('CLOUDINARY_API_SECRET',"Q7rHpKtHks5uumDpevY6J7Rmtvk")
 
 cloudinary.config( 
-  cloud_name = "dk3btogkl", 
-  api_key = "756496171926584", 
-  api_secret = "Q7rHpKtHks5uumDpevY6J7Rmtvk" 
+  cloud_name = CLOUDINARY_CLOUD_NAME, 
+  api_key = CLOUDINARY_API_KEY, 
+  api_secret = CLOUDINARY_API_SECRET 
 )
