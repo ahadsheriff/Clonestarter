@@ -26,8 +26,8 @@ def upgrade():
     # seed with guest accounts
     op.bulk_insert(member_table,
         [
-            {'id':1, 'first_name':"Guest", 'last_name': "Creator"}
-            {'id':2, 'first_name':"Guest", 'last_name': "Pledgor"}
+            {'id':1, 'first_name':"Guest", 'last_name': "Creator"},
+            {'id':2, 'first_name':"Guest", 'last_name': "Pledgor"},
         ])
 
     op.create_table('project',
