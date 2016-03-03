@@ -5,6 +5,10 @@ from flask.ext.script import Manager
 import datetime
 import cloudinary.uploader
 
+"""
+This is the init file where I initialize all the routes of the app, etc.
+"""
+
 # Initialze main app
 app = Flask(__name__)
 app.config.from_object('clonestarter.default_settings')
