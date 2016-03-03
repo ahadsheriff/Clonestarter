@@ -19,7 +19,7 @@ from clonestarter.models import *
 
 @app.route('/')
 def hello():
-	projects = db.session.query(Project).order_by(Project.time_created.desc()).limit(10)
+	projects = db.session.query(Project).order_by(Project.time_created.desc()).limit(15)
 
 	return render_template('index.html', projects=projects)
 
